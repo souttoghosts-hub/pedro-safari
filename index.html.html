@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦁 Pedro Safari Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --sand: #F5E6C8; --sand-dark: #E8D0A0;
+  --brown: #8B5E3C; --brown-dark: #5C3D1E;
+  --green: #5A7A3A; --green-light: #7FA85A;
+  --orange: #D4762A; --yellow: #F2C94C;
+  --cream: #FDF6E3; --text: #3D2B1A;
+  --shadow: rgba(91,62,28,0.18);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background-color: var(--sand); color: var(--text); min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at 10% 10%, rgba(210,165,70,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 90% 80%, rgba(90,122,58,0.13) 0%, transparent 55%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%238B5E3C' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, var(--brown-dark) 0%, var(--brown) 60%, var(--orange) 100%);
+  padding: 28px 20px 64px; text-align: center;
+  position: relative; overflow: hidden;
+}
+header::after {
+  content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 52px;
+  background: var(--sand); clip-path: ellipse(55% 100% at 50% 100%);
+}
+.safari-animals {
+  font-size: 2rem; letter-spacing: 10px; margin-bottom: 8px; display: block;
+  animation: bounceA 2.5s ease-in-out infinite;
+}
+@keyframes bounceA { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+header h1 {
+  font-family: 'Baloo 2', cursive; font-size: clamp(2rem,6vw,3rem);
+  font-weight: 800; color: var(--yellow); text-shadow: 3px 3px 0 var(--brown-dark);
+}
+header p { color: rgba(255,255,255,0.85); font-size: 0.95rem; margin-top: 4px; }
+
+/* COUNTDOWN */
+.cd-wrap {
+  display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
+  padding: 18px 16px 0; position: relative; z-index: 2;
+}
+.cd-card {
+  background: var(--cream); border: 3px solid var(--brown);
+  border-radius: 18px; padding: 14px 20px; text-align: center; min-width: 82px;
+  box-shadow: 4px 4px 0 var(--brown-dark), 0 6px 20px var(--shadow);
+}
+.cd-num {
+  font-family: 'Baloo 2', cursive; font-size: 2.6rem; font-weight: 800;
+  color: var(--orange); line-height: 1;
+}
+.cd-lbl {
+  font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--brown); margin-top: 3px;
+}
+.arrival-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--green), var(--green-light));
+  color: white; border-radius: 50px; padding: 8px 22px;
+  font-size: 0.85rem; font-weight: 700; margin: 16px auto 28px;
+  box-shadow: 0 4px 14px rgba(90,122,58,0.3); letter-spacing: 0.4px;
+}
+
+/* PROGRESS */
+.progress-section { max-width: 880px; margin: 0 auto 22px; padding: 0 16px; }
+.progress-card {
+  background: var(--cream); border-radius: 20px; padding: 20px 24px;
+  border: 3px solid var(--sand-dark); box-shadow: 0 6px 20px var(--shadow);
+}
+.progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.progress-top h3 { font-family: 'Baloo 2', cursive; font-size: 1.05rem; color: var(--brown-dark); }
+.progress-pct { font-family: 'Baloo 2', cursive; font-size: 1.7rem; font-weight: 800; color: var(--green); }
+.progress-bar-bg { background: var(--sand-dark); border-radius: 50px; height: 18px; overflow: hidden; }
+.progress-bar-fill {
+  height: 100%; border-radius: 50px;
+  background: linear-gradient(90deg, var(--green), var(--green-light));
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+}
+.progress-stats { display: flex; gap: 18px; margin-top: 10px; font-size: 0.82rem; font-weight: 700; color: var(--brown); flex-wrap: wrap; }
+.s-done { color: var(--green); } .s-todo { color: var(--orange); }
+
+/* CONTROLS */
+.controls {
+  max-width: 880px; margin: 0 auto 18px; padding: 0 16px;
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+.filter-btn {
+  padding: 8px 18px; border-radius: 50px; border: 2.5px solid var(--brown);
+  background: transparent; color: var(--brown-dark); font-family: 'Nunito', sans-serif;
+  font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all .2s;
+}
+.filter-btn.active, .filter-btn:hover { background: var(--brown); color: var(--cream); }
+.search-wrap { margin-left: auto; position: relative; }
+.search-wrap input {
+  border: 2.5px solid var(--brown); border-radius: 50px;
+  padding: 8px 16px 8px 36px; font-family: 'Nunito', sans-serif;
+  font-size: 0.85rem; background: var(--cream); color: var(--text); outline: none; width: 200px;
+}
+.search-wrap::before {
+  content: '🔍'; position: absolute; left: 11px; top: 50%;
+  transform: translateY(-50%); font-size: 0.85rem;
+}
+
+/* CATEGORIES */
+.categories { max-width: 880px; margin: 0 auto; padding: 0 16px 80px; }
+.cat-block { margin-bottom: 22px; animation: fadeUp 0.35s ease both; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+
+.cat-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 20px; border-radius: 16px 16px 0 0;
+  cursor: pointer; user-select: none;
+}
+.p1 .cat-header { background: linear-gradient(90deg,#B03020,#E74C3C); }
+.p2 .cat-header { background: linear-gradient(90deg,#C06010,#F39C12); }
+.p3 .cat-header { background: linear-gradient(90deg,var(--green),var(--green-light)); }
+
+.cat-header h2 {
+  font-family: 'Baloo 2', cursive; font-size: 1.05rem; font-weight: 800;
+  color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.25); flex: 1;
+}
+.cat-icon { font-size: 1.4rem; flex-shrink: 0; }
+.cat-count {
+  background: rgba(255,255,255,0.3); color: white; width: 28px; height: 28px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; font-weight: 800; flex-shrink: 0;
+}
+.prio-badge {
+  background: rgba(255,255,255,0.22); color: white; padding: 3px 10px;
+  border-radius: 50px; font-size: 0.68rem; font-weight: 800; letter-spacing: .4px; flex-shrink: 0;
+}
+.toggle-arr { color: rgba(255,255,255,0.8); font-size: 1rem; transition: transform .3s; flex-shrink: 0; }
+.cat-header.closed .toggle-arr { transform: rotate(-90deg); }
+
+.items-list {
+  background: var(--cream); border: 3px solid var(--sand-dark);
+  border-top: none; border-radius: 0 0 16px 16px; overflow: hidden;
+}
+.items-list.hidden { display: none; }
+
+.item-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 20px; border-bottom: 1px solid var(--sand-dark);
+  cursor: pointer; transition: background .18s;
+}
+.item-row:last-child { border-bottom: none; }
+.item-row:hover { background: rgba(242,201,76,0.12); }
+.item-row.done { opacity: 0.52; }
+
+.chk {
+  width: 24px; height: 24px; border: 2.5px solid var(--brown);
+  border-radius: 8px; background: white; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s; font-size: 0.85rem; font-weight: 800; color: white;
+}
+.item-row.done .chk { background: var(--green); border-color: var(--green); }
+.chk-mark { opacity: 0; transition: opacity .2s; }
+.item-row.done .chk-mark { opacity: 1; }
+
+.item-emoji { font-size: 1.25rem; flex-shrink: 0; }
+.item-info { flex: 1; min-width: 0; }
+.item-name { font-weight: 700; font-size: .9rem; color: var(--text); }
+.item-row.done .item-name { text-decoration: line-through; color: var(--brown); }
+.item-desc { font-size: .73rem; color: var(--brown); margin-top: 2px; }
+
+.item-tag { font-size: .67rem; font-weight: 800; padding: 3px 9px; border-radius: 50px; flex-shrink: 0; white-space: nowrap; }
+.t-u { background: #FFE4E4; color: #B03020; }
+.t-i { background: #FFF3E0; color: #C06010; }
+.t-p { background: #E8F5E9; color: var(--green); }
+
+/* SYNC */
+.sync-bar {
+  position: fixed; bottom: 16px; right: 16px;
+  background: var(--cream); border: 2.5px solid var(--brown); border-radius: 50px;
+  padding: 8px 16px; font-size: .78rem; font-weight: 700; color: var(--brown);
+  box-shadow: 0 4px 16px var(--shadow); display: flex; align-items: center; gap: 7px; z-index: 999;
+}
+.sync-dot {
+  width: 9px; height: 9px; border-radius: 50%; background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+.sync-dot.syncing { background: var(--orange); animation: none; }
+.sync-dot.offline  { background: #C0392B; animation: none; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+/* CONFIG */
+.cfg-btn {
+  position: fixed; bottom: 16px; left: 16px; background: var(--cream);
+  border: 2.5px solid var(--brown); border-radius: 50%; width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; cursor: pointer; z-index: 999;
+  box-shadow: 0 4px 12px var(--shadow); transition: transform .3s;
+}
+.cfg-btn:hover { transform: rotate(45deg); }
+
+/* MODAL */
+.modal-ov {
+  display: none; position: fixed; inset: 0;
+  background: rgba(61,43,26,.72); backdrop-filter: blur(5px);
+  z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-ov.show { display: flex; }
+.modal-box {
+  background: var(--cream); border: 4px solid var(--brown); border-radius: 24px;
+  padding: 32px; max-width: 500px; width: 100%; box-shadow: 8px 8px 0 var(--brown-dark);
+}
+.modal-box h2 { font-family: 'Baloo 2', cursive; font-size: 1.6rem; color: var(--brown-dark); margin-bottom: 8px; }
+.modal-box p { font-size: .88rem; color: var(--brown); margin-bottom: 16px; line-height: 1.6; }
+.modal-box input {
+  width: 100%; border: 2.5px solid var(--brown); border-radius: 12px;
+  padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: .88rem;
+  background: white; color: var(--text); margin-bottom: 10px; outline: none;
+}
+.modal-box input:focus { border-color: var(--orange); }
+.btn-connect {
+  width: 100%; padding: 13px; background: linear-gradient(135deg,var(--brown),var(--orange));
+  color: white; border: none; border-radius: 12px; font-family: 'Baloo 2', cursive;
+  font-size: 1rem; font-weight: 700; cursor: pointer; transition: transform .15s;
+}
+.btn-connect:hover { transform: translateY(-2px); }
+.btn-skip { width: 100%; padding: 8px; background: transparent; color: var(--brown); border: none; font-size: .82rem; cursor: pointer; margin-top: 8px; text-decoration: underline; }
+.setup-link { color: var(--orange); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div class="modal-ov" id="setupModal">
+  <div class="modal-box">
+    <div style="font-size:2.5rem;text-align:center;margin-bottom:12px">🦁 ⚙️</div>
+    <h2>Configurar Supabase</h2>
+    <p>Para salvar na nuvem e acessar de qualquer dispositivo, insira suas credenciais do Supabase.<br><br>
+    Não tem conta? <a class="setup-link" href="https://supabase.com" target="_blank">Crie grátis em supabase.com</a> → Novo Projeto → Settings → API.</p>
+    <input type="text" id="inputUrl" placeholder="URL do Projeto (https://xxxx.supabase.co)" />
+    <input type="text" id="inputKey" placeholder="anon public key (eyJ...)" />
+    <button class="btn-connect" onclick="saveSupabaseConfig()">🌍 Conectar e Salvar</button>
+    <button class="btn-skip" onclick="skipSetup()">Usar apenas localmente por enquanto</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <span class="safari-animals">🦒 🦁 🐘 🦓 🦏</span>
+  <h1>🌿 Checklist do Pedro 🌿</h1>
+  <p>Bem-vindo ao Safari do nosso filhote!</p>
+</header>
+
+<!-- COUNTDOWN -->
+<div style="text-align:center">
+  <div class="cd-wrap">
+    <div class="cd-card"><div class="cd-num" id="cdDias">---</div><div class="cd-lbl">Dias</div></div>
+    <div class="cd-card"><div class="cd-num" id="cdHoras">--</div><div class="cd-lbl">Horas</div></div>
+    <div class="cd-card"><div class="cd-num" id="cdMin">--</div><div class="cd-lbl">Min</div></div>
+    <div class="cd-card"><div class="cd-num" id="cdSeg">--</div><div class="cd-lbl">Seg</div></div>
+  </div>
+  <div class="arrival-badge">🐾 Pedro chega em: 11 de Setembro de 2026 🐾</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-section">
+  <div class="progress-card">
+    <div class="progress-top">
+      <h3>🗂️ Progresso Geral</h3>
+      <span class="progress-pct" id="pctText">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-stats">
+      <span class="s-done" id="statDone">✅ 0 comprados</span>
+      <span class="s-todo" id="statTodo">🛒 0 faltando</span>
+      <span id="statTotal" style="margin-left:auto">📦 0 total</span>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
+  <button class="filter-btn" onclick="setFilter('pendentes',this)">Pendentes</button>
+  <button class="filter-btn" onclick="setFilter('comprados',this)">Comprados</button>
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="Buscar item..." oninput="renderAll()">
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<div class="categories" id="container"></div>
+
+<!-- SYNC -->
+<div class="sync-bar">
+  <div class="sync-dot" id="syncDot"></div>
+  <span id="syncText">Iniciando...</span>
+</div>
+
+<!-- CONFIG GEAR -->
+<div class="cfg-btn" onclick="openSetup()" title="Configurar Supabase">⚙️</div>
+
+<script>
+// ===== CREDENTIALS =====
+const SB_URL = 'https://kcptsdurixpyhlhcbihv.supabase.co';
+const SB_KEY = 'sb_publishable_iR3JrrjAuvv23EXGghg6iQ_C_G1FUbT';
+
+// ===== BIRTH DATE — September 11 2026 =====
+const BIRTH_DATE = new Date(2026, 8, 11, 0, 0, 0); // month is 0-indexed: 8 = September
+
+// ===== CHECKLIST DATA =====
+const categorias = [
+  // ---- PRIORIDADE 1 ----
+  { id:'mobilias', nome:'🛏️ Móveis e Estrutura do Quarto', prio:1, tag:'u', icone:'🏠', itens:[
+    {id:'berco',      nome:'Berço',                          emoji:'🛏️', desc:'Com grade regulável — peça central do quarto'},
+    {id:'colchao',    nome:'Colchão para berço',             emoji:'😴', desc:'Firme, impermeável, 130×70 cm'},
+    {id:'trocador',   nome:'Trocador / Cômoda com trocador', emoji:'🗄️', desc:'Com banheira de apoio ou mesa separada'},
+    {id:'armario',    nome:'Guarda-roupa do bebê',           emoji:'🚪', desc:'Com cabides pequenos e divisórias internas'},
+    {id:'poltrona',   nome:'Poltrona de amamentação',        emoji:'🪑', desc:'Com apoio de braço e pescoço, reclinável'},
+    {id:'tapete',     nome:'Tapete safari para o quarto',    emoji:'🟤', desc:'Felpudo, antiderrapante e lavável'},
+  ]},
+  { id:'higiene', nome:'🛁 Higiene e Cuidados', prio:1, tag:'u', icone:'🧼', itens:[
+    {id:'banheira',        nome:'Banheira de bebê',                 emoji:'🛁', desc:'Com suporte antiderrapante e escoador'},
+    {id:'termometro',      nome:'Termômetro digital',               emoji:'🌡️', desc:'Axilar, de testa ou timpânico'},
+    {id:'aspirador_nasal', nome:'Aspirador nasal',                  emoji:'👃', desc:'Manual ou elétrico — usa MUITO!'},
+    {id:'kit_unhas',       nome:'Kit cortador de unhas bebê',       emoji:'✂️', desc:'Tesoura curva + lixa'},
+    {id:'escovinha',       nome:'Escovinha de cabelo e pente',      emoji:'🪮', desc:'Cerdas ultra macias'},
+    {id:'algodao',         nome:'Algodão hidrófilo (2 pacotes)',    emoji:'🤍', desc:'Rolinhos ou discos sem fragrância'},
+    {id:'sabao',           nome:'Sabonete líquido e shampoo bebê',  emoji:'🧴', desc:'pH neutro, sem lágrimas'},
+    {id:'pomada',          nome:'Pomada para assadura (2 tubos)',   emoji:'💊', desc:'Hipoglós, Bepantol Baby ou Desitin'},
+    {id:'alcool_gel',      nome:'Álcool gel 70° (para os pais)',    emoji:'🖐️', desc:'Higienizar mãos antes de tocar o bebê'},
+  ]},
+  { id:'roupas', nome:'👶 Enxoval de Roupas', prio:1, tag:'u', icone:'👕', itens:[
+    {id:'bodies_mc',   nome:'Bodies manga curta RN — 8 unidades',   emoji:'👕', desc:'Abertura nas costas ou frente, 100% algodão'},
+    {id:'bodies_ml',   nome:'Bodies manga longa P — 6 unidades',    emoji:'👕', desc:'Para noites mais frias'},
+    {id:'macacaos',    nome:'Macacões/Pagão RN, P e M — 6 un.',     emoji:'🧸', desc:'Mistura com e sem pé'},
+    {id:'meias',       nome:'Meias de algodão — 10+ pares',         emoji:'🧦', desc:'Tamanho RN/P'},
+    {id:'touca',       nome:'Toucas de algodão — 4 unidades',       emoji:'🎩', desc:'Para os primeiros dias no hospital'},
+    {id:'luvas',       nome:'Luvinhas anticoçadura — 4 pares',      emoji:'🧤', desc:'Para não arranhar o rosto'},
+    {id:'sapatinhos',  nome:'Sapatinhos macios — 2 pares',          emoji:'👟', desc:'Tamanho 13/14, algodão ou malha'},
+    {id:'pijamas',     nome:'Pijamas RN e P — 4 unidades',          emoji:'🌙', desc:'Com zíper ou botões de pressão'},
+    {id:'casacos',     nome:'Casacos e moletons — 2 unidades',      emoji:'🧥', desc:'Para noites frias ou saídas'},
+    {id:'mijao',       nome:'Macacão grosso/Mijão — 2 unidades',    emoji:'🐻', desc:'Para passeios e dias mais frescos'},
+  ]},
+  { id:'enxoval', nome:'🛏️ Enxoval de Cama e Banho', prio:1, tag:'u', icone:'🛌', itens:[
+    {id:'lencol',       nome:'Lençóis para berço com elástico — 4 un.',emoji:'🛏️', desc:'Tema safari, 100% algodão'},
+    {id:'fralda_pano',  nome:'Fraldas de pano / paninhos — 12+ un.',   emoji:'🧻', desc:'Para eructar, limpar — acaba rápido!'},
+    {id:'toalha',       nome:'Toalhas de banho com capuz — 3 un.',     emoji:'🐻', desc:'Felpudo, macio, tema safari'},
+    {id:'cobertor',     nome:'Cobertores/Manta — 3 unidades',          emoji:'🌨️', desc:'Fleece ou malha, leve'},
+    {id:'ninho',        nome:'Ninho redutor de berço',                 emoji:'🪺', desc:'Deixa o bebê mais aconchegado e seguro'},
+    {id:'protetor',     nome:'Protetor lateral de berço (bumper)',     emoji:'🛡️', desc:'Respirável, sem enchimento'},
+    {id:'impermeavel',  nome:'Capa impermeável para colchão — 2 un.', emoji:'💧', desc:'Evita que xixi molhe o colchão'},
+  ]},
+  { id:'alimentacao', nome:'🍼 Alimentação e Amamentação', prio:1, tag:'u', icone:'🍼', itens:[
+    {id:'mamadeiras',       nome:'Mamadeiras anti-cólica — 3 unidades',    emoji:'🍼', desc:'Bico S ou N1'},
+    {id:'bomba',            nome:'Bomba extratora de leite',               emoji:'🤱', desc:'Manual ou elétrica'},
+    {id:'lanolina',         nome:'Lanolina / Creme para mamilos',          emoji:'🧴', desc:'Para amamentação — uso diário!'},
+    {id:'esterilizador',    nome:'Esterilizador de mamadeiras',            emoji:'♨️', desc:'Elétrico ou para micro-ondas'},
+    {id:'escova_mamadeira', nome:'Escova para mamadeiras',                emoji:'🧹', desc:'Com escova para bico separada'},
+    {id:'almofada_amam',    nome:'Almofada de amamentação',               emoji:'🤰', desc:'Apoio durante as mamadas'},
+    {id:'protetor_mamilo',  nome:'Protetor de mamilo silicone — 2 un.',   emoji:'🩹', desc:'Para dificuldades no início'},
+    {id:'copinho',          nome:'Copinho de transição — 2 unidades',     emoji:'🥤', desc:'Para oferecer água futuramente'},
+  ]},
+  { id:'hospital', nome:'🏨 Bolsa Maternidade', prio:1, tag:'u', icone:'🏨', itens:[
+    {id:'roupa_hospital',  nome:'Roupinha para saída do hospital',    emoji:'👶', desc:'Body + macacão + agasalho + meias + touca'},
+    {id:'manta_hospital',  nome:'Manta para saída — 2 unidades',     emoji:'🌿', desc:'Macia e quentinha'},
+    {id:'necessaire',      nome:'Necessaire da mamãe',               emoji:'👜', desc:'Higiene pessoal + absorvente pós-parto'},
+    {id:'documentos',      nome:'Documentos e carteirinha do plano', emoji:'📋', desc:'RG, CPF, cartão do plano — em pasta'},
+    {id:'camisola',        nome:'Camisolas para a mamãe — 3 un.',    emoji:'👗', desc:'Confortável, com acesso para amamentação'},
+    {id:'sutia_amam',      nome:'Sutiã de amamentação — 3 un.',      emoji:'🤱', desc:'Comprar 1 tamanho a mais do habitual'},
+    {id:'meias_mae',       nome:'Meias antiderrapantes da mamãe',    emoji:'🧦', desc:'Conforto pós-parto'},
+    {id:'carregador',      nome:'Carregador de celular + bateria',   emoji:'🔋', desc:'Para registrar tudo!'},
+    {id:'lanche_pai',      nome:'Lanchinhos para o acompanhante',    emoji:'🍫', desc:'Barras de cereal, biscoito, suco'},
+  ]},
+
+  // ---- PRIORIDADE 2 ----
+  { id:'saude', nome:'🏥 Saúde e Segurança', prio:2, tag:'i', icone:'💊', itens:[
+    {id:'monitor',          nome:'Monitor de bebê (babá eletrônica)', emoji:'📡', desc:'Com câmera, áudio e visão noturna'},
+    {id:'soro',             nome:'Soro fisiológico — caixa com 30',  emoji:'💧', desc:'Para limpeza nasal — usa bastante!'},
+    {id:'umidificador',     nome:'Umidificador de ar ultrassônico',  emoji:'💨', desc:'Para o quarto — essencial em setembro'},
+    {id:'protetor_tomada',  nome:'Protetores de tomada — caixa',    emoji:'🔌', desc:'Segurança elétrica'},
+    {id:'kit_primeiros',    nome:'Kit primeiros socorros bebê',      emoji:'🏥', desc:'Pinça, espátula, gazes, micropore'},
+    {id:'bolsa_termica',    nome:'Bolsa térmica',                   emoji:'🧊', desc:'Para transportar leite e medicamentos'},
+    {id:'tapete_banho',     nome:'Tapete antiderrapante banheiro',  emoji:'🛁', desc:'Para a banheira ou chão'},
+  ]},
+  { id:'locomocao', nome:'🚗 Locomoção e Passeios', prio:2, tag:'i', icone:'🚗', itens:[
+    {id:'carrinho',          nome:'Carrinho de bebê',              emoji:'🛺', desc:'Reclinável 180°, cobertura solar e cesto'},
+    {id:'bebe_conforto',     nome:'Bebê conforto (cadeirinha)',    emoji:'🚗', desc:'OBRIGATÓRIO para sair do hospital'},
+    {id:'canguru',           nome:'Canguru / Sling ergonômico',   emoji:'👶', desc:'Para carregar junto ao corpo'},
+    {id:'mochila_mat',       nome:'Mochila de maternidade',       emoji:'🎒', desc:'Impermeável, com trocador embutido'},
+    {id:'capa_chuva',        nome:'Capinha de chuva para carrinho',emoji:'☔', desc:'Transparente e ventilada'},
+    {id:'protetor_sol_carr', nome:'Protetor solar para carrinho', emoji:'☀️', desc:'Tela UV tipo mosquiteiro'},
+  ]},
+  { id:'quarto_deco', nome:'🎨 Decoração Safari do Quartinho', prio:2, tag:'i', icone:'🦒', itens:[
+    {id:'papel_parede',    nome:'Papel de parede / adesivos safari',  emoji:'🌿', desc:'Girafas, leões, elefantes, árvores'},
+    {id:'mobile_bercо',    nome:'Móbile para berço — safari',         emoji:'🦁', desc:'Musical ou de movimento'},
+    {id:'quadros',         nome:'Quadros decorativos — nome Pedro',   emoji:'🖼️', desc:'Letras ou arte safari personalizada'},
+    {id:'abajur',          nome:'Abajur / Luminária de quarto',       emoji:'💡', desc:'Luz quente, com dimmer'},
+    {id:'caixas_org',      nome:'Caixas organizadoras decorativas',   emoji:'📦', desc:'Para guarda-roupa e trocador'},
+    {id:'porta_mat',       nome:'Enfeite de porta maternidade',       emoji:'🚪', desc:'Com tema safari e nome Pedro'},
+    {id:'cortina',         nome:'Cortina blackout',                   emoji:'🌑', desc:'Essencial para o sono do bebê'},
+    {id:'almofada_deco',   nome:'Almofadas decorativas safari',       emoji:'🦓', desc:'Para poltrona ou berço'},
+  ]},
+
+  // ---- PRIORIDADE 3 ----
+  { id:'brinquedos', nome:'🧸 Brinquedos e Estímulo', prio:3, tag:'p', icone:'🎪', itens:[
+    {id:'chocalho',        nome:'Chocalhos macios — 3 unidades',      emoji:'🎵', desc:'Estimulação auditiva'},
+    {id:'tapete_ativ',     nome:'Tapete de atividades',               emoji:'🎪', desc:'Com espelho e brinquedos pendurados'},
+    {id:'mordedor',        nome:'Mordedores de silicone — 3 un.',     emoji:'🦷', desc:'Sem BPA — para a dentição'},
+    {id:'livros_pano',     nome:'Livrinhos de pano — 3 unidades',     emoji:'📚', desc:'Estimulação visual e tátil'},
+    {id:'pelucias',        nome:'Pelúcias safari — leão, girafa, elefante',emoji:'🦁',desc:'Para o quartinho e estimulação'},
+    {id:'balanco',         nome:'Cadeira de balanço / bouncer',       emoji:'🎠', desc:'Elétrica ou manual — auxilia no sono'},
+    {id:'espelho_bebe',    nome:'Espelho para bebê (inquebrável)',     emoji:'🪞', desc:'Para tapete de atividades'},
+    {id:'projetor_mus',    nome:'Projetor musical para berço',        emoji:'🌟', desc:'Estrelas no teto + músicas suaves'},
+  ]},
+  { id:'fraldas', nome:'🧷 Fraldas e Consumíveis', prio:3, tag:'p', icone:'🧷', itens:[
+    {id:'fraldas_rn',    nome:'Fraldas descartáveis RN — 3 pacotes', emoji:'🧷', desc:'Testa uma marca antes de estocar'},
+    {id:'fraldas_p',     nome:'Fraldas descartáveis P — 3 pacotes',  emoji:'🧷', desc:'Boa opção para as primeiras semanas'},
+    {id:'lencos_umidos', nome:'Lenços umedecidos s/ perfume — 6+',   emoji:'🧻', desc:'Acaba MUITO rápido!'},
+    {id:'saco_fralda',   nome:'Sacos para fraldas usadas',           emoji:'🗑️', desc:'Tipo ziploc ou perfumados'},
+    {id:'lixeira_frald', nome:'Lixeira especial para fraldas',       emoji:'🗑️', desc:'Com tampa e vedação de odor'},
+    {id:'creme_hidra',   nome:'Hidratante para bebê',                emoji:'🧴', desc:'Sem perfume, hipoalergênico'},
+    {id:'absorv_pos',    nome:'Absorvente pós-parto — 3 pacotes',    emoji:'🩸', desc:'Noturno e diurno para a mamãe'},
+  ]},
+];
+
+// ===== STATE =====
+let checkedItems = {};
+let currentFilter = 'todos';
+let sbClient = null;
+let sbReady = false;
+
+// ===== SUPABASE =====
+function initSB(url, key) {
+  try {
+    sbClient = window.supabase.createClient(url, key);
+    sbReady = true;
+    return true;
+  } catch(e) { console.error('SB init error:', e); return false; }
+}
+
+async function loadFromSB() {
+  if (!sbReady) return;
+  setSyncStatus('syncing', 'Carregando...');
+  try {
+    const { data, error } = await sbClient.from('pedro_checklist').select('*');
+    if (error) throw error;
+    checkedItems = {};
+    (data || []).forEach(r => { checkedItems[r.id] = r.checked; });
+    setSyncStatus('ok', 'Sincronizado ☁️');
+  } catch(e) {
+    console.error('Load error:', e);
+    setSyncStatus('offline', 'Erro de conexão');
+  }
+}
+
+async function saveToSB(id, checked) {
+  if (!sbReady) return;
+  setSyncStatus('syncing', 'Salvando...');
+  try {
+    const { error } = await sbClient.from('pedro_checklist')
+      .upsert({ id, checked }, { onConflict: 'id' });
+    if (error) throw error;
+    setSyncStatus('ok', 'Salvo ☁️');
+  } catch(e) {
+    console.error('Save error:', e);
+    setSyncStatus('offline', 'Erro ao salvar');
+  }
+}
+
+function setSyncStatus(s, txt) {
+  const dot = document.getElementById('syncDot');
+  dot.className = 'sync-dot' + (s === 'ok' ? '' : ' ' + s);
+  document.getElementById('syncText').textContent = txt;
+}
+
+// ===== LOCAL STORAGE =====
+function loadLocal() {
+  try { return JSON.parse(localStorage.getItem('pedro_checklist') || '{}'); } catch { return {}; }
+}
+function saveLocal() {
+  try { localStorage.setItem('pedro_checklist', JSON.stringify(checkedItems)); } catch {}
+}
+function loadSavedCreds() {
+  try { return JSON.parse(localStorage.getItem('pedro_sb_config') || 'null'); } catch { return null; }
+}
+
+// ===== COUNTDOWN =====
+function updateCountdown() {
+  const now = Date.now();
+  const target = BIRTH_DATE.getTime();
+  const diff = target - now;
+  if (diff <= 0) {
+    document.getElementById('cdDias').textContent  = '🎉';
+    document.getElementById('cdHoras').textContent = '00';
+    document.getElementById('cdMin').textContent   = '00';
+    document.getElementById('cdSeg').textContent   = '00';
+    return;
+  }
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  document.getElementById('cdDias').textContent  = String(d).padStart(3, '0');
+  document.getElementById('cdHoras').textContent = String(h).padStart(2, '0');
+  document.getElementById('cdMin').textContent   = String(m).padStart(2, '0');
+  document.getElementById('cdSeg').textContent   = String(s).padStart(2, '0');
+}
+
+// ===== PROGRESS =====
+function updateProgress() {
+  const all = categorias.flatMap(c => c.itens);
+  const total = all.length;
+  const done = all.filter(i => checkedItems[i.id]).length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('pctText').textContent = pct + '%';
+  document.getElementById('statDone').textContent = `✅ ${done} comprado${done !== 1 ? 's' : ''}`;
+  document.getElementById('statTodo').textContent = `🛒 ${total - done} faltando`;
+  document.getElementById('statTotal').textContent = `📦 ${total} total`;
+}
+
+// ===== TOGGLE =====
+async function toggleItem(id) {
+  checkedItems[id] = !checkedItems[id];
+  saveLocal();
+  renderAll();
+  await saveToSB(id, checkedItems[id]);
+}
+
+// ===== FILTER =====
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+
+// ===== RENDER =====
+function renderAll() {
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  const container = document.getElementById('container');
+  container.innerHTML = '';
+
+  const sorted = [...categorias].sort((a, b) => a.prio - b.prio);
+
+  sorted.forEach((cat, idx) => {
+    const filtered = cat.itens.filter(item => {
+      const matchSearch = !search ||
+        item.nome.toLowerCase().includes(search) ||
+        (item.desc || '').toLowerCase().includes(search);
+      const isDone = !!checkedItems[item.id];
+      const matchFilter =
+        currentFilter === 'todos' ||
+        (currentFilter === 'comprados' && isDone) ||
+        (currentFilter === 'pendentes' && !isDone);
+      return matchSearch && matchFilter;
+    });
+
+    if (filtered.length === 0) return;
+
+    const doneCat  = cat.itens.filter(i => checkedItems[i.id]).length;
+    const prioLabel = cat.prio === 1 ? '⭐ PRIORIDADE MÁXIMA' : cat.prio === 2 ? '📌 IMPORTANTE' : '💚 SEM PRESSA';
+    const tagClass  = cat.tag === 'u' ? 't-u' : cat.tag === 'i' ? 't-i' : 't-p';
+    const tagLabel  = cat.tag === 'u' ? '🔴 Urgente' : cat.tag === 'i' ? '🟡 Importante' : '🟢 Pode esperar';
+
+    const block = document.createElement('div');
+    block.className = `cat-block p${cat.prio}`;
+    block.style.animationDelay = (idx * 0.04) + 's';
+
+    const itemsHTML = filtered.map(item => {
+      const done = !!checkedItems[item.id];
+      return `<div class="item-row ${done ? 'done' : ''}" onclick="toggleItem('${item.id}')">
+        <div class="chk"><span class="chk-mark">✓</span></div>
+        <span class="item-emoji">${item.emoji}</span>
+        <div class="item-info">
+          <div class="item-name">${item.nome}</div>
+          ${item.desc ? `<div class="item-desc">${item.desc}</div>` : ''}
+        </div>
+        <span class="item-tag ${tagClass}">${tagLabel}</span>
+      </div>`;
+    }).join('');
+
+    block.innerHTML = `
+      <div class="cat-header" onclick="toggleCat(this)">
+        <span class="cat-icon">${cat.icone}</span>
+        <h2>${cat.nome}</h2>
+        <span class="cat-count">${doneCat}/${cat.itens.length}</span>
+        <span class="prio-badge">${prioLabel}</span>
+        <span class="toggle-arr">▾</span>
+      </div>
+      <div class="items-list">${itemsHTML}</div>`;
+
+    container.appendChild(block);
+  });
+
+  updateProgress();
+}
+
+function toggleCat(header) {
+  header.classList.toggle('closed');
+  header.nextElementSibling.classList.toggle('hidden');
+}
+
+// ===== MODAL =====
+function openSetup() {
+  document.getElementById('setupModal').classList.add('show');
+  const cfg = loadSavedCreds();
+  if (cfg) {
+    document.getElementById('inputUrl').value = cfg.url || '';
+    document.getElementById('inputKey').value = cfg.key || '';
+  }
+}
+function saveSupabaseConfig() {
+  const url = document.getElementById('inputUrl').value.trim();
+  const key = document.getElementById('inputKey').value.trim();
+  if (!url || !key) { alert('Preencha URL e chave!'); return; }
+  localStorage.setItem('pedro_sb_config', JSON.stringify({ url, key }));
+  if (initSB(url, key)) {
+    document.getElementById('setupModal').classList.remove('show');
+    setSyncStatus('ok', 'Conectado ☁️');
+    loadFromSB().then(renderAll);
+  } else {
+    alert('Erro ao conectar. Verifique as credenciais.');
+  }
+}
+function skipSetup() {
+  document.getElementById('setupModal').classList.remove('show');
+  setSyncStatus('offline', 'Apenas local');
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', async () => {
+  // Start countdown immediately
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // Show items immediately from local storage
+  checkedItems = loadLocal();
+  renderAll();
+
+  // Try hardcoded Supabase credentials
+  if (SB_URL && !SB_URL.includes('SUA_')) {
+    const ok = initSB(SB_URL, SB_KEY);
+    if (ok) {
+      await loadFromSB();
+      renderAll();
+      return;
+    }
+  }
+
+  // Try saved credentials
+  const cfg = loadSavedCreds();
+  if (cfg && cfg.url && cfg.key) {
+    const ok = initSB(cfg.url, cfg.key);
+    if (ok) {
+      await loadFromSB();
+      renderAll();
+      return;
+    }
+  }
+
+  // No credentials — show modal
+  document.getElementById('setupModal').classList.add('show');
+  setSyncStatus('offline', 'Apenas local');
+});
+</script>
+
+<!--
+=== SQL PARA CRIAR A TABELA NO SUPABASE ===
+Execute no SQL Editor do seu projeto:
+
+CREATE TABLE pedro_checklist (
+  id TEXT PRIMARY KEY,
+  checked BOOLEAN DEFAULT FALSE,
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+ALTER TABLE pedro_checklist ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all" ON pedro_checklist FOR ALL USING (true) WITH CHECK (true);
+==========================================
+-->
+</body>
+</html>
